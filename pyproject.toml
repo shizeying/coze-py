@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "my-cozepy"
-version = "1.0.0"
+version = "0.13.1-fix"
 description = "OpenAPI SDK for Coze(coze.com/coze.cn) - Custom Version"
 authors = ["chyroc <chyroc@bytedance.com>", "YOUR_NAME <YOUR_EMAIL>"]
 readme = "README.md"
