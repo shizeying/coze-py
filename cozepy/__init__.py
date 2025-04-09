@@ -34,6 +34,9 @@ from .bots import (
     BotPromptInfo,
     SimpleBot,
     UpdateBotResp,
+    PluginIdInfo,
+    WorkflowIdInfo,
+    ModelInfoConfig,
 )
 from .chat import (
     Chat,
@@ -199,6 +202,9 @@ __all__ = [
     "Bot",
     "SimpleBot",
     "UpdateBotResp",
+    "PluginIdInfo",
+    "WorkflowIdInfo",
+    "ModelInfoConfig",
     # chat
     "MessageRole",
     "MessageType",
