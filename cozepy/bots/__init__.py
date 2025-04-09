@@ -124,6 +124,27 @@ class _PrivateListBotsData(CozeModel, NumberPagedResponse[SimpleBot]):
         return self.space_bots
 
 
+class PluginIdInfo(CozeModel):
+    # The ID of the plugin.
+    plugin_id: str
+    # The list of tool IDs for the plugin.
+    api_id_list: List[str]
+
+
+class WorkflowIdInfo(CozeModel):
+    # The ID of the workflow.
+    workflow_id: str
+    # The list of tool IDs for the workflow.
+    api_id_list: List[str]
+
+
+class ModelInfoConfig(CozeModel):
+    # The ID of the model.
+    model_id: str
+    # The name of the model.
+    model_name: str
+
+
 class BotsClient(object):
     """
     Bot class.
@@ -142,7 +163,28 @@ class BotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
+        plugin_id_list: Optional[List[str]] = None,
+        plugin_id_info_list: Optional[List[PluginIdInfo]] = None,
+        workflow_id_list: Optional[List[str]] = None,
+        workflow_id_info_list: Optional[List[WorkflowIdInfo]] = None,
+        model_info_config: Optional[ModelInfoConfig] = None,
     ) -> Bot:
+        """
+        Create a new bot.
+
+        :param space_id: The ID of the space where the bot will be created.
+        :param name: The name of the bot. It should be 1 to 20 characters long.
+        :param description: The description of the bot. It can be 0 to 500 characters long.
+        :param icon_file_id: The file ID for the bot's avatar.
+        :param prompt_info: The personality and reply logic of the bot.
+        :param onboarding_info: The settings related to the bot's opening remarks.
+        :param plugin_id_list: The list of plugin IDs to be configured for the bot.
+        :param plugin_id_info_list: The list of plugin IDs and their configurations.
+        :param workflow_id_list: The list of workflow IDs to be configured for the bot.
+        :param workflow_id_info_list: The list of workflow IDs and their configurations.
+        :param model_info_config: The model configuration for the bot.
+        :return: Bot object
+        """
         url = f"{self._base_url}/v1/bot/create"
         body = {
             "space_id": space_id,
@@ -151,6 +193,11 @@ class BotsClient(object):
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "plugin_id_list": plugin_id_list,
+            "plugin_id_info_list": [p.model_dump() for p in plugin_id_info_list] if plugin_id_info_list else None,
+            "workflow_id_list": workflow_id_list,
+            "workflow_id_info_list": [w.model_dump() for w in workflow_id_info_list] if workflow_id_info_list else None,
+            "model_info_config": model_info_config.model_dump() if model_info_config else None,
         }
 
         return self._requester.request("post", url, False, Bot, body=body)
@@ -165,26 +212,32 @@ class BotsClient(object):
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
         knowledge: Optional[BotKnowledge] = None,
+        plugin_id_list: Optional[List[str]] = None,
+        plugin_id_info_list: Optional[List[PluginIdInfo]] = None,
+        workflow_id_list: Optional[List[str]] = None,
+        workflow_id_info_list: Optional[List[WorkflowIdInfo]] = None,
+        model_info_config: Optional[ModelInfoConfig] = None,
     ) -> UpdateBotResp:
         """
         Update the configuration of a bot.
         This API can be used to update all bots created through the Coze platform or via the API.
-        In addition to updating the bot's name and description, avatar, personality and reply logic,
-        and opening remarks, this API also supports binding a knowledge base to the bot.
 
         docs en: https://www.coze.com/docs/developer_guides/update_bot
         docs zh: https://www.coze.cn/docs/developer_guides/update_bot
 
         :param bot_id: The ID of the bot that the API interacts with.
         :param name: The name of the bot. It should be 1 to 20 characters long.
-        :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
-        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Coze platform will
-        assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
-        file interface and obtain the file ID from the interface response.
+        :param description: The description of the Bot. It can be 0 to 500 characters long.
+        :param icon_file_id: The file ID for the Bot's avatar.
         :param prompt_info: The personality and reply logic of the bot.
         :param onboarding_info: The settings related to the bot's opening remarks.
         :param knowledge: The knowledge base that the bot uses to answer user queries.
-        :return: None
+        :param plugin_id_list: The list of plugin IDs to be configured for the bot.
+        :param plugin_id_info_list: The list of plugin IDs and their configurations.
+        :param workflow_id_list: The list of workflow IDs to be configured for the bot.
+        :param workflow_id_info_list: The list of workflow IDs and their configurations.
+        :param model_info_config: The model configuration for the bot.
+        :return: UpdateBotResp
         """
         url = f"{self._base_url}/v1/bot/update"
         body = {
@@ -195,6 +248,11 @@ class BotsClient(object):
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
             "knowledge": knowledge.model_dump() if knowledge else None,
+            "plugin_id_list": plugin_id_list,
+            "plugin_id_info_list": [p.model_dump() for p in plugin_id_info_list] if plugin_id_info_list else None,
+            "workflow_id_list": workflow_id_list,
+            "workflow_id_info_list": [w.model_dump() for w in workflow_id_info_list] if workflow_id_info_list else None,
+            "model_info_config": model_info_config.model_dump() if model_info_config else None,
         }
 
         return self._requester.request(
@@ -295,7 +353,28 @@ class AsyncBotsClient(object):
         icon_file_id: Optional[str] = None,
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
+        plugin_id_list: Optional[List[str]] = None,
+        plugin_id_info_list: Optional[List[PluginIdInfo]] = None,
+        workflow_id_list: Optional[List[str]] = None,
+        workflow_id_info_list: Optional[List[WorkflowIdInfo]] = None,
+        model_info_config: Optional[ModelInfoConfig] = None,
     ) -> Bot:
+        """
+        Create a new bot asynchronously.
+
+        :param space_id: The ID of the space where the bot will be created.
+        :param name: The name of the bot. It should be 1 to 20 characters long.
+        :param description: The description of the bot. It can be 0 to 500 characters long.
+        :param icon_file_id: The file ID for the bot's avatar.
+        :param prompt_info: The personality and reply logic of the bot.
+        :param onboarding_info: The settings related to the bot's opening remarks.
+        :param plugin_id_list: The list of plugin IDs to be configured for the bot.
+        :param plugin_id_info_list: The list of plugin IDs and their configurations.
+        :param workflow_id_list: The list of workflow IDs to be configured for the bot.
+        :param workflow_id_info_list: The list of workflow IDs and their configurations.
+        :param model_info_config: The model configuration for the bot.
+        :return: Bot object
+        """
         url = f"{self._base_url}/v1/bot/create"
         body = {
             "space_id": space_id,
@@ -304,6 +383,11 @@ class AsyncBotsClient(object):
             "icon_file_id": icon_file_id,
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
+            "plugin_id_list": plugin_id_list,
+            "plugin_id_info_list": [p.model_dump() for p in plugin_id_info_list] if plugin_id_info_list else None,
+            "workflow_id_list": workflow_id_list,
+            "workflow_id_info_list": [w.model_dump() for w in workflow_id_info_list] if workflow_id_info_list else None,
+            "model_info_config": model_info_config.model_dump() if model_info_config else None,
         }
 
         return await self._requester.arequest("post", url, False, Bot, body=body)
@@ -318,9 +402,14 @@ class AsyncBotsClient(object):
         prompt_info: Optional[BotPromptInfo] = None,
         onboarding_info: Optional[BotOnboardingInfo] = None,
         knowledge: Optional[BotKnowledge] = None,
+        plugin_id_list: Optional[List[str]] = None,
+        plugin_id_info_list: Optional[List[PluginIdInfo]] = None,
+        workflow_id_list: Optional[List[str]] = None,
+        workflow_id_info_list: Optional[List[WorkflowIdInfo]] = None,
+        model_info_config: Optional[ModelInfoConfig] = None,
     ) -> UpdateBotResp:
         """
-        Update the configuration of a bot.
+        Update the configuration of a bot asynchronously.
         This API can be used to update all bots created through the Coze platform or via the API.
         In addition to updating the bot's name and description, avatar, personality and reply logic,
         and opening remarks, this API also supports binding a knowledge base to the bot.
@@ -330,14 +419,17 @@ class AsyncBotsClient(object):
 
         :param bot_id: The ID of the bot that the API interacts with.
         :param name: The name of the bot. It should be 1 to 20 characters long.
-        :param description: The description of the Bot. It can be 0 to 500 characters long. The default is empty.
-        :param icon_file_id: The file ID for the Bot's avatar. If no file ID is specified, the Coze platform will
-        assign a default avatar for the bot. To use a custom avatar, first upload the local file through the Upload
-        file interface and obtain the file ID from the interface response.
+        :param description: The description of the Bot. It can be 0 to 500 characters long.
+        :param icon_file_id: The file ID for the Bot's avatar.
         :param prompt_info: The personality and reply logic of the bot.
         :param onboarding_info: The settings related to the bot's opening remarks.
         :param knowledge: The knowledge base that the bot uses to answer user queries.
-        :return: None
+        :param plugin_id_list: The list of plugin IDs to be configured for the bot.
+        :param plugin_id_info_list: The list of plugin IDs and their configurations.
+        :param workflow_id_list: The list of workflow IDs to be configured for the bot.
+        :param workflow_id_info_list: The list of workflow IDs and their configurations.
+        :param model_info_config: The model configuration for the bot.
+        :return: UpdateBotResp
         """
         url = f"{self._base_url}/v1/bot/update"
         body = {
@@ -348,6 +440,11 @@ class AsyncBotsClient(object):
             "prompt_info": prompt_info.model_dump() if prompt_info else None,
             "onboarding_info": onboarding_info.model_dump() if onboarding_info else None,
             "knowledge": knowledge.model_dump() if knowledge else None,
+            "plugin_id_list": plugin_id_list,
+            "plugin_id_info_list": [p.model_dump() for p in plugin_id_info_list] if plugin_id_info_list else None,
+            "workflow_id_list": workflow_id_list,
+            "workflow_id_info_list": [w.model_dump() for w in workflow_id_info_list] if workflow_id_info_list else None,
+            "model_info_config": model_info_config.model_dump() if model_info_config else None,
         }
 
         return await self._requester.arequest("post", url, False, cast=UpdateBotResp, body=body)
